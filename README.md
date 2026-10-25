@@ -9,9 +9,14 @@ remain available. Choosing direct key setup creates an encrypted local vault
 with the supplied EVM account, without generating a recovery phrase or an extra
 account.
 
+Imported private-key accounts can be removed whenever another account remains,
+including the account used for initial setup. The final account's removal controls
+are disabled. Removing the original account leaves the next account first in the
+vault; its address and existing name are retained.
+
 For the Windows preview, extract the preview archive and double-click
 `TRY-WALLET.cmd`. It opens an isolated Edge profile and step-by-step instructions.
-No Node, Yarn, build, or Infura account is required. Preview 3 supplies public
+No Node, Yarn, build, or Infura account is required. Preview 4 supplies public
 RPC defaults and automatically upgrades the built-in endpoints in earlier preview
 profiles. Wallet data, network selections, and user-added RPC endpoints are retained.
 
@@ -38,7 +43,7 @@ locking/unlocking all passed with a public disposable key. The 20 build-config
 tests passed, including dependency-patch cache invalidation. Independent security
 review remains outstanding. Use disposable test keys for evaluation.
 
-If you tried an earlier preview, replace its extracted files with preview 3 and click
+If you tried an earlier preview, replace its extracted files with preview 4 and click
 **Reload** for `metamask-bb` on your browser's Extensions page. Refreshing the
 wallet tab alone does not reload its background worker. No profile reset is
 needed. Select the `extension` subfolder when using **Load unpacked**.

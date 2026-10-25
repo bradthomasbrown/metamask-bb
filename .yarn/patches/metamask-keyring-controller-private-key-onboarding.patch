@@ -36,27 +36,40 @@ diff --git a/dist/KeyringController.js b/dist/KeyringController.js
      /**
       * Effectively the same as creating a new keychain then populating it
       * using the given seed phrase.
-@@ -1674,7 +1695,10 @@
+@@ -733,7 +754,8 @@
+             const isPrimaryKeyring = keyringIndex === 0;
+             const shouldRemoveKeyring = (await keyring.getAccounts()).length === 1;
+             // Primary keyring should never be removed, so we need to keep at least one account in it
+-            if (isPrimaryKeyring && shouldRemoveKeyring) {
++            if ((await this.#getAccountsFromKeyrings()).length <= 1 ||
++                (isPrimaryKeyring && keyring.type !== KeyringTypes.simple && shouldRemoveKeyring)) {
+                 throw new KeyringControllerError(KeyringControllerErrorMessage.LastAccountInPrimaryKeyring);
+             }
+             // Not all the keyrings support this, so we have to check
+@@ -1268,6 +1290,12 @@
+                         throw new KeyringControllerError(KeyringControllerErrorMessage.KeyringNotFound);
+                     }
+                     this.#assertNotRemovingPrimaryKeyring(restrictedEntries[index], restrictedEntries);
++                    const remainingAccounts = await Promise.all(restrictedEntries
++                        .filter((_, entryIndex) => entryIndex !== index)
++                        .map(({ keyring }) => keyring.getAccounts()));
++                    if (!remainingAccounts.some((accounts) => accounts.length > 0)) {
++                        throw new KeyringControllerError(KeyringControllerErrorMessage.LastAccountInPrimaryKeyring);
++                    }
+                     const [removed] = restrictedEntries.splice(index, 1);
+                     removedEntries.add(removed);
+                 },
+@@ -1674,7 +1702,9 @@
                  throw new KeyringControllerError(KeyringControllerErrorMessage.MissingCredentials);
              }
              const serializedKeyrings = await this.#getSerializedKeyrings();
 -            if (!serializedKeyrings.some((keyring) => keyring.type === KeyringTypes.hd)) {
-+            // A private-key-only installation has no HD keyring. Require a real
-+            // local keyring with at least one key before persisting its vault.
-+            if (!serializedKeyrings.some((keyring) => keyring.type === KeyringTypes.hd ||
-+                (keyring.type === KeyringTypes.simple && Array.isArray(keyring.data) && keyring.data.length > 0))) {
++            // Seedless installations must retain at least one real account.
++            if (!serializedKeyrings.some((keyring) => keyring.type === KeyringTypes.hd) &&
++                (await this.#getAccountsFromKeyrings()).length === 0) {
                  throw new KeyringControllerError(KeyringControllerErrorMessage.NoHdKeyring);
              }
              const key = await this.#encryptor.importKey(this.#encryptionKey.serialized);
-@@ -2029,7 +2053,7 @@
-      */
-     #isPrimaryKeyring(entry, keyrings) {
-         return (keyrings[0] === entry &&
--            entry.keyring.type === KeyringTypes.hd);
-+            (entry.keyring.type === KeyringTypes.hd || entry.keyring.type === KeyringTypes.simple));
-     }
-     /**
-      * Assert that the given keyring entry is not the primary HD keyring.
 diff --git a/dist/KeyringController.d.ts b/dist/KeyringController.d.ts
 --- a/dist/KeyringController.d.ts
 +++ b/dist/KeyringController.d.ts

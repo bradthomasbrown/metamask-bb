@@ -1858,6 +1858,41 @@ describe('MultichainAccountList', () => {
       ).not.toHaveClass('multichain-account-cell--hidden');
     });
 
+    it('disables deletion of the final account even when the list is filtered', () => {
+      const singleAccountState = {
+        ...stateWithPrivateKeyAccount,
+        metamask: {
+          ...stateWithPrivateKeyAccount.metamask,
+          internalAccounts: {
+            ...stateWithPrivateKeyAccount.metamask.internalAccounts,
+            accounts: {
+              [privateKeyAccountId]:
+                stateWithPrivateKeyAccount.metamask.internalAccounts.accounts[
+                  privateKeyAccountId
+                ],
+            },
+          },
+        },
+      };
+      renderWithProvider(
+        <MultichainAccountList
+          {...defaultProps}
+          wallets={mockWalletsWithPrivateKey}
+          isEditMode={true}
+        />,
+        configureStore(singleAccountState),
+      );
+      const removeButton = screen.getByTestId(
+        'multichain-account-cell-edit-mode-delete-icon',
+      );
+      expect(removeButton).toBeDisabled();
+      fireEvent.click(removeButton);
+      expect(
+        screen.queryByTestId('account-delete-confirm-modal'),
+      ).not.toBeInTheDocument();
+      expect(mockRemoveAccount).not.toHaveBeenCalled();
+    });
+
     it('removes the private-key account when delete is confirmed', () => {
       renderComponent(
         {

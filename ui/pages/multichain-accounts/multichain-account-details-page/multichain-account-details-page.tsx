@@ -55,6 +55,7 @@ import { useWalletInfo } from '../../../hooks/multichain-accounts/useWalletInfo'
 import { MultichainAccountEditModal } from '../../../components/multichain-accounts/multichain-account-edit-modal';
 import { AccountRemoveModal } from '../../../components/multichain-accounts/account-remove-modal';
 import { removeAccount } from '../../../store/actions';
+import { getHasMultipleAccounts } from '../../../selectors/accounts';
 import {
   MetaMetricsEventCategory,
   MetaMetricsEventName,
@@ -83,6 +84,7 @@ export const MultichainAccountDetailsPage = () => {
   const { keyringId, isSRPBackedUp } = useWalletInfo(walletId);
 
   const isRemovable = wallet?.type !== AccountWalletType.Entropy;
+  const hasMultipleAccounts = useSelector(getHasMultipleAccounts);
   const addressCount = useSelector((state) =>
     getNetworkAddressCount(state, accountGroupId),
   );
@@ -142,7 +144,7 @@ export const MultichainAccountDetailsPage = () => {
 
   const handleAccountRemoveAction = useCallback(() => {
     const firstAccountAddress = accountsWithAddresses[0]?.address;
-    if (firstAccountAddress) {
+    if (firstAccountAddress && hasMultipleAccounts) {
       // Don't want to blindly call removeAccount without an invalid or empty parameter
       dispatch(removeAccount(firstAccountAddress));
       trackEvent(
@@ -160,6 +162,7 @@ export const MultichainAccountDetailsPage = () => {
     }
   }, [
     dispatch,
+    hasMultipleAccounts,
     trackEvent,
     createEventBuilder,
     navigate,
@@ -314,7 +317,12 @@ export const MultichainAccountDetailsPage = () => {
           <Box className="multichain-account-details-page__section">
             <AccountDetailsRow
               label={t('removeAccount')}
-              labelColor={TextColor.ErrorDefault}
+              isDisabled={!hasMultipleAccounts}
+              labelColor={
+                hasMultipleAccounts
+                  ? TextColor.ErrorDefault
+                  : TextColor.TextAlternative
+              }
               value={''}
               onClick={() => setIsAccountRemoveModalOpen(true)}
               endAccessory={
@@ -324,6 +332,7 @@ export const MultichainAccountDetailsPage = () => {
                   iconProps={{ color: IconColor.IconAlternative }}
                   size={ButtonIconSize.Md}
                   ariaLabel={t('removeAccount')}
+                  isDisabled={!hasMultipleAccounts}
                   data-testid="account-remove-action"
                 />
               }

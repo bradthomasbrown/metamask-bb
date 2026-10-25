@@ -101,7 +101,7 @@ describe('private-key-only vault', () => {
     ).toBe(true);
   });
 
-  it('protects the primary private-key account in both removal APIs', async () => {
+  it('protects the final private-key account in both removal APIs', async () => {
     const controller = createController();
     await controller.createNewVaultAndImportPrivateKey(password, privateKey);
     await expect(controller.removeAccount(address)).rejects.toThrow();
@@ -110,6 +110,93 @@ describe('private-key-only vault', () => {
       controller.withController(async (view) => view.removeKeyring(id)),
     ).rejects.toThrow();
     expect(await controller.getAccounts()).toStrictEqual([address]);
+  });
+
+  it.each([0, 1])(
+    'can remove either imported account (index %i) and reopen the survivor',
+    async (index) => {
+      const controller = createController();
+      await controller.createNewVaultAndImportPrivateKey(password, privateKey);
+      await controller.importAccountWithStrategy(
+        AccountImportStrategy.privateKey,
+        ['2'.padStart(64, '0')],
+      );
+      const accounts = await controller.getAccounts();
+      const removed = accounts[index];
+      const survivor = accounts[1 - index];
+      await controller.removeAccount(removed);
+      expect(await controller.getAccounts()).toStrictEqual([survivor]);
+      expect(controller.state.keyrings).toHaveLength(1);
+      expect(controller.state.keyrings[0].accounts).toStrictEqual([survivor]);
+      const reopened = createController(controller.state.vault);
+      await reopened.submitPassword(password);
+      expect(await reopened.getAccounts()).toStrictEqual([survivor]);
+      await expect(
+        reopened.exportAccount({ password }, removed),
+      ).rejects.toThrow();
+      expect(
+        await reopened.signPersonalMessage({
+          from: survivor,
+          data: '0x68656c6c6f',
+        }),
+      ).toMatch(/^0x[0-9a-f]{130}$/u);
+      await expect(reopened.removeAccount(survivor)).rejects.toThrow();
+      expect(await reopened.getAccounts()).toStrictEqual([survivor]);
+    },
+  );
+
+  it('can remove the first imported keyring through the staged controller API', async () => {
+    const controller = createController();
+    await controller.createNewVaultAndImportPrivateKey(password, privateKey);
+    await controller.importAccountWithStrategy(
+      AccountImportStrategy.privateKey,
+      ['2'.padStart(64, '0')],
+    );
+    const survivor = (await controller.getAccounts())[1];
+    const { id } = controller.state.keyrings[0].metadata;
+    await controller.withController(async (view) => view.removeKeyring(id));
+    const reopened = createController(controller.state.vault);
+    await reopened.submitPassword(password);
+    expect(await reopened.getAccounts()).toStrictEqual([survivor]);
+  });
+
+  it('serializes competing removals so one account always survives', async () => {
+    const controller = createController();
+    await controller.createNewVaultAndImportPrivateKey(password, privateKey);
+    await controller.importAccountWithStrategy(
+      AccountImportStrategy.privateKey,
+      ['2'.padStart(64, '0')],
+    );
+    const accounts = await controller.getAccounts();
+    const results = await Promise.allSettled(
+      accounts.map((account) => controller.removeAccount(account)),
+    );
+    expect(results.filter(({ status }) => status === 'fulfilled')).toHaveLength(
+      1,
+    );
+    expect(results.filter(({ status }) => status === 'rejected')).toHaveLength(
+      1,
+    );
+    const reopened = createController(controller.state.vault);
+    await reopened.submitPassword(password);
+    expect(await reopened.getAccounts()).toHaveLength(1);
+  });
+
+  it('retains the upstream protection for a primary seed-based keyring', async () => {
+    const controller = createController();
+    await controller.createNewVaultAndKeychain(password);
+    const [primary] = await controller.getAccounts();
+    await controller.importAccountWithStrategy(
+      AccountImportStrategy.privateKey,
+      [privateKey],
+    );
+    await expect(controller.removeAccount(primary)).rejects.toThrow();
+    await expect(
+      controller.withController(async (view) =>
+        view.removeKeyring(controller.state.keyrings[0].metadata.id),
+      ),
+    ).rejects.toThrow();
+    expect(await controller.getAccounts()).toHaveLength(2);
   });
 
   it.each([

@@ -150,6 +150,35 @@ describe('MultichainAccountDetailsPage', () => {
     expect(screen.getByText(/remove account/iu)).toBeInTheDocument();
   });
 
+  it('disables the removal row and button for the final account', () => {
+    setSearchParams(LEDGER_ACCOUNT_GROUP_ID);
+    const accounts = Object.fromEntries(
+      Object.entries(mockState.metamask.internalAccounts.accounts).filter(
+        ([, account]) =>
+          account.address === '0xc42edfcc21ed14dda456aa0756c153f7985d8813',
+      ),
+    );
+    expect(Object.keys(accounts)).toHaveLength(1);
+    const singleAccountStore = configureMockStore([thunk])({
+      ...mockState,
+      metamask: {
+        ...mockState.metamask,
+        internalAccounts: { ...mockState.metamask.internalAccounts, accounts },
+      },
+    });
+    renderWithProvider(<MultichainAccountDetailsPage />, singleAccountStore);
+    const removeButton = screen.getByTestId('account-remove-action');
+    const removeRow = screen.getByTestId('account-details-row-remove-account');
+    expect(removeButton).toBeDisabled();
+    expect(removeRow).toHaveAttribute('aria-disabled', 'true');
+    fireEvent.click(removeButton);
+    fireEvent.click(removeRow);
+    expect(
+      screen.queryByTestId('account-remove-modal'),
+    ).not.toBeInTheDocument();
+    expect(mockDispatch).not.toHaveBeenCalled();
+  });
+
   it('does not render Setup Smart Account row for hardware wallet (Ledger) account', () => {
     setSearchParams(LEDGER_ACCOUNT_GROUP_ID);
 

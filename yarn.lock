@@ -9005,7 +9005,7 @@ __metadata:
 
 "@metamask/keyring-controller@patch:@metamask/keyring-controller@npm%3A28.2.0#~/.yarn/patches/metamask-keyring-controller-private-key-onboarding.patch":
   version: 28.2.0
-  resolution: "@metamask/keyring-controller@patch:@metamask/keyring-controller@npm%3A28.2.0#~/.yarn/patches/metamask-keyring-controller-private-key-onboarding.patch::version=28.2.0&hash=cf70e8"
+  resolution: "@metamask/keyring-controller@patch:@metamask/keyring-controller@npm%3A28.2.0#~/.yarn/patches/metamask-keyring-controller-private-key-onboarding.patch::version=28.2.0&hash=a6e323"
   dependencies:
     "@ethereumjs/util": "npm:^9.1.0"
     "@metamask/base-controller": "npm:^10.0.0"
@@ -9023,7 +9023,7 @@ __metadata:
     immer: "npm:^11.1.18"
     lodash-es: "npm:^4.18.1"
     ulid: "npm:^2.4.0"
-  checksum: 10/0e9f4695eedd2d05b4421f0242cd7d2f1e8f6b03ba846ea4867e1918d950822a5183436955501e3eafb6c6d7f598525bd593fc8f539368ceb931707f81120e7c
+  checksum: 10/5431b69b03fd77eb65d0142997e204b8aaf8f5cc276903018a41bd1a4ae72c22776b9ef64f95f22d3e1a2571c5b3458833ed2ad4f87e1ad273ff275b22d18071
   languageName: node
   linkType: hard
 

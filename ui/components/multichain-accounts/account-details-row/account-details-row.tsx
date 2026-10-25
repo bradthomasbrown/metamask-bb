@@ -20,6 +20,7 @@ type AccountDetailsRowProps = {
   onClick?: () => void;
   style?: React.CSSProperties;
   labelColor?: ComponentProps<typeof Text>['color'];
+  isDisabled?: boolean;
 };
 
 export const AccountDetailsRow = ({
@@ -29,10 +30,12 @@ export const AccountDetailsRow = ({
   style,
   onClick,
   labelColor,
+  isDisabled = false,
 }: AccountDetailsRowProps) => {
   const rowClassName = classnames('multichain-account-details__row', {
-    'multichain-account-details__row--clickable': Boolean(onClick),
-    'multichain-account-details__row--default': !onClick,
+    'multichain-account-details__row--clickable':
+      Boolean(onClick) && !isDisabled,
+    'multichain-account-details__row--default': !onClick || isDisabled,
   });
 
   return (
@@ -40,15 +43,14 @@ export const AccountDetailsRow = ({
       backgroundColor={BoxBackgroundColor.BackgroundSection}
       flexDirection={BoxFlexDirection.Row}
       justifyContent={BoxJustifyContent.Between}
-      style={style}
+      style={isDisabled ? { ...style, opacity: 0.5 } : style}
+      aria-disabled={isDisabled || undefined}
       paddingLeft={4}
       paddingRight={2}
       alignItems={BoxAlignItems.Center}
-      onClick={onClick}
+      onClick={isDisabled ? undefined : onClick}
       className={rowClassName}
-      data-testid={`account-details-row-${label
-        .toLowerCase()
-        .replaceAll(' ', '-')}`}
+      data-testid={`account-details-row-${label.toLowerCase().replaceAll(' ', '-')}`}
     >
       <Text
         color={labelColor ?? TextColor.TextDefault}
@@ -69,9 +71,7 @@ export const AccountDetailsRow = ({
           fontWeight={FontWeight.Medium}
           ellipsis
           className="multichain-account-details__value"
-          data-testid={`account-details-row-value-${label
-            .toLowerCase()
-            .replaceAll(' ', '-')}`}
+          data-testid={`account-details-row-value-${label.toLowerCase().replaceAll(' ', '-')}`}
         >
           {value}
         </Text>

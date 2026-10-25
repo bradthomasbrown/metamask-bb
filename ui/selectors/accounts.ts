@@ -58,6 +58,11 @@ export const getInternalAccounts = createSelector(
   (accounts) => Object.values(accounts),
 );
 
+export const getHasMultipleAccounts = createSelector(
+  getInternalAccounts,
+  (accounts) => accounts.length > 1,
+);
+
 // Uses EMPTY_OBJECT to preserve referential equality when accountIdByAddress
 // is undefined, so downstream createSelector consumers don't recompute.
 export const getAccountIdByAddress = (state: AccountsState) =>

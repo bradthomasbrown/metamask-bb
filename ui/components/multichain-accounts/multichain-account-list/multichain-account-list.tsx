@@ -80,6 +80,7 @@ import { isPrivateKeyWallet } from '../../../helpers/utils/account-wallet';
 import { VirtualizedList } from '../../ui/virtualized-list/virtualized-list';
 import { useDispatch } from '../../../store/hooks';
 import { useDisconnectAccountGroup } from '../../../hooks/useDisconnectAccountGroup';
+import { getHasMultipleAccounts } from '../../../selectors/accounts';
 
 export type MultichainAccountListProps = {
   wallets: AccountTreeWallets;
@@ -215,6 +216,7 @@ export const MultichainAccountList = ({
   const hdEntropyIndex = useSelector(getHDEntropyIndex);
   const { privacyMode } = useSelector(getPreferences);
   const internalAccountsById = useSelector(getInternalAccountsObject);
+  const hasMultipleAccounts = useSelector(getHasMultipleAccounts);
 
   useEffect(() => {
     endTrace({ name: TraceName.AccountList });
@@ -306,7 +308,7 @@ export const MultichainAccountList = ({
 
   const handleAccountDeleteConfirm = useCallback(() => {
     const address = accountToDelete?.address;
-    if (address) {
+    if (address && hasMultipleAccounts) {
       dispatch(removeAccount(address));
       trackEvent(
         createEventBuilder(MetaMetricsEventName.AccountRemoved)
@@ -320,7 +322,13 @@ export const MultichainAccountList = ({
       );
     }
     setAccountToDelete(null);
-  }, [accountToDelete, createEventBuilder, dispatch, trackEvent]);
+  }, [
+    accountToDelete,
+    createEventBuilder,
+    dispatch,
+    trackEvent,
+    hasMultipleAccounts,
+  ]);
 
   const handleVisibilityToggle = useCallback(
     async (accountGroupId: AccountGroupId, currentlyHidden: boolean) => {
@@ -538,6 +546,7 @@ export const MultichainAccountList = ({
             isHidden={isHidden}
             isEditMode={isEditMode}
             isDeleteMode={isDeleteMode}
+            isDeleteDisabled={!hasMultipleAccounts}
             onVisibilityIconClick={
               isVisibilityMode
                 ? (accountGroupId) => {
@@ -546,7 +555,7 @@ export const MultichainAccountList = ({
                 : undefined
             }
             onDeleteIconClick={
-              isDeleteMode
+              isDeleteMode && hasMultipleAccounts
                 ? () => {
                     // Private key groups have exactly 1 account.
                     const [accountId] = groupData.accounts;
@@ -610,6 +619,7 @@ export const MultichainAccountList = ({
       showDefaultAddress,
       isEditMode,
       internalAccountsById,
+      hasMultipleAccounts,
       visibilityOverrides,
       handleVisibilityToggle,
     ],

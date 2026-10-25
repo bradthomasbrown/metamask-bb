@@ -147,7 +147,7 @@ const EditModeDeleteIcon = ({
     data-testid="multichain-account-cell-edit-mode-delete-icon"
     iconProps={{
       size: IconSize.Md,
-      className: IconColor.ErrorDefault,
+      color: disabled ? IconColor.IconMuted : IconColor.ErrorDefault,
     }}
   />
 );
@@ -196,6 +196,8 @@ export type MultichainAccountCellProps = {
    * @default false
    */
   isDeleteMode?: boolean;
+  /** Disable deletion when this is the wallet's final account. */
+  isDeleteDisabled?: boolean;
   /**
    * Called when the edit-mode visibility icon is clicked.
    */
@@ -225,6 +227,7 @@ export const MultichainAccountCell = ({
   isHidden = false,
   isEditMode = false,
   isDeleteMode = false,
+  isDeleteDisabled = false,
   onVisibilityIconClick,
   onDeleteIconClick,
 }: MultichainAccountCellProps) => {
@@ -375,7 +378,7 @@ export const MultichainAccountCell = ({
           <EditModeDeleteIcon
             ariaLabel={t('removeAccount')}
             onClick={handleDeleteIconClick}
-            disabled={pending}
+            disabled={pending || isDeleteDisabled}
           />
         ) : (
           isEditMode && (
