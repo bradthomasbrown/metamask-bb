@@ -1,4 +1,6 @@
 export enum FirstTimeFlowType {
+  /** Initialize a local vault containing only an existing EVM private key. */
+  PrivateKeyImport = 'PrivateKeyImport',
   /**
    * When a user imports a wallet from a seed phrase they will have the
    * 'import' firstTimeFlowType.

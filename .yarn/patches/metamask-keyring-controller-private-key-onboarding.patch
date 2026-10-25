@@ -1,0 +1,96 @@
+diff --git a/dist/KeyringController.js b/dist/KeyringController.js
+--- a/dist/KeyringController.js
++++ b/dist/KeyringController.js
+@@ -53,6 +53,7 @@
+     'addNewKeyring',
+     'createNewVaultAndKeychain',
+     'createNewVaultAndRestore',
++    'createNewVaultAndImportPrivateKey',
+     'removeAccount',
+     'isUnlocked',
+     'exportSeedPhrase',
+@@ -398,6 +399,26 @@
+             return addedAccountAddress;
+         });
+     }
++    /** Initialize a new vault from one existing key, without generating entropy. */
++    async createNewVaultAndImportPrivateKey(password, privateKey) {
++        return this.#persistOrRollback(async () => {
++            assertIsValidPassword(password);
++            if (this.state.vault || this.#keyrings.length) {
++                throw new KeyringControllerError('Private-key setup requires an empty vault');
++            }
++            if (typeof privateKey !== 'string') {
++                throw new KeyringControllerError('Invalid private key');
++            }
++            const normalized = privateKey.trim().replace(/^0x/iu, '');
++            if (!/^[0-9a-f]{64}$/iu.test(normalized) || !isValidPrivate(hexToBytes(add0x(normalized)))) {
++                throw new KeyringControllerError('Invalid private key');
++            }
++            await this.#createNewVaultWithKeyring(password, {
++                type: KeyringTypes.simple,
++                opts: [normalized],
++            });
++        });
++    }
+     /**
+      * Effectively the same as creating a new keychain then populating it
+      * using the given seed phrase.
+@@ -1674,7 +1695,10 @@
+                 throw new KeyringControllerError(KeyringControllerErrorMessage.MissingCredentials);
+             }
+             const serializedKeyrings = await this.#getSerializedKeyrings();
+-            if (!serializedKeyrings.some((keyring) => keyring.type === KeyringTypes.hd)) {
++            // A private-key-only installation has no HD keyring. Require a real
++            // local keyring with at least one key before persisting its vault.
++            if (!serializedKeyrings.some((keyring) => keyring.type === KeyringTypes.hd ||
++                (keyring.type === KeyringTypes.simple && Array.isArray(keyring.data) && keyring.data.length > 0))) {
+                 throw new KeyringControllerError(KeyringControllerErrorMessage.NoHdKeyring);
+             }
+             const key = await this.#encryptor.importKey(this.#encryptionKey.serialized);
+@@ -2029,7 +2053,7 @@
+      */
+     #isPrimaryKeyring(entry, keyrings) {
+         return (keyrings[0] === entry &&
+-            entry.keyring.type === KeyringTypes.hd);
++            (entry.keyring.type === KeyringTypes.hd || entry.keyring.type === KeyringTypes.simple));
+     }
+     /**
+      * Assert that the given keyring entry is not the primary HD keyring.
+diff --git a/dist/KeyringController.d.ts b/dist/KeyringController.d.ts
+--- a/dist/KeyringController.d.ts
++++ b/dist/KeyringController.d.ts
+@@ -414,6 +414,8 @@
+      * @returns Promise resolving to the added account address
+      */
+     addNewAccountForKeyring(keyring: EthKeyring, accountCount?: number): Promise<Hex>;
++    /** Initialize a fresh vault containing only one existing EVM private key. */
++    createNewVaultAndImportPrivateKey(password: string, privateKey: string): Promise<void>;
+     /**
+      * Effectively the same as creating a new keychain then populating it
+      * using the given seed phrase.
+diff --git a/dist/KeyringController-method-action-types.d.ts b/dist/KeyringController-method-action-types.d.ts
+--- a/dist/KeyringController-method-action-types.d.ts
++++ b/dist/KeyringController-method-action-types.d.ts
+@@ -487,5 +487,9 @@
+ /**
+  * Union of all KeyringController action types.
+  */
+-export type KeyringControllerMethodActions = KeyringControllerAddNewAccountAction | KeyringControllerCreateNewVaultAndRestoreAction | KeyringControllerCreateNewVaultAndKeychainAction | KeyringControllerAddNewKeyringAction | KeyringControllerVerifyPasswordAction | KeyringControllerIsUnlockedAction | KeyringControllerExportSeedPhraseAction | KeyringControllerExportAccountAction | KeyringControllerGetAccountsAction | KeyringControllerGetEncryptionPublicKeyAction | KeyringControllerDecryptMessageAction | KeyringControllerGetKeyringForAccountAction | KeyringControllerGetKeyringsByTypeAction | KeyringControllerPersistAllKeyringsAction | KeyringControllerImportAccountWithStrategyAction | KeyringControllerRemoveAccountAction | KeyringControllerSetLockedAction | KeyringControllerSignMessageAction | KeyringControllerSignEip7702AuthorizationAction | KeyringControllerSignPersonalMessageAction | KeyringControllerSignTypedMessageAction | KeyringControllerSignTransactionAction | KeyringControllerPrepareUserOperationAction | KeyringControllerPatchUserOperationAction | KeyringControllerSignUserOperationAction | KeyringControllerChangePasswordAction | KeyringControllerSubmitEncryptionKeyAction | KeyringControllerExportEncryptionKeyAction | KeyringControllerSubmitPasswordAction | KeyringControllerWithKeyringAction | KeyringControllerWithKeyringUnsafeAction | KeyringControllerWithKeyringV2Action | KeyringControllerWithKeyringV2UnsafeAction | KeyringControllerWithControllerAction | KeyringControllerGetAccountKeyringTypeAction;
++export type KeyringControllerCreateNewVaultAndImportPrivateKeyAction = {
++    type: `KeyringController:createNewVaultAndImportPrivateKey`;
++    handler: KeyringController['createNewVaultAndImportPrivateKey'];
++};
++export type KeyringControllerMethodActions = KeyringControllerCreateNewVaultAndImportPrivateKeyAction | KeyringControllerAddNewAccountAction | KeyringControllerCreateNewVaultAndRestoreAction | KeyringControllerCreateNewVaultAndKeychainAction | KeyringControllerAddNewKeyringAction | KeyringControllerVerifyPasswordAction | KeyringControllerIsUnlockedAction | KeyringControllerExportSeedPhraseAction | KeyringControllerExportAccountAction | KeyringControllerGetAccountsAction | KeyringControllerGetEncryptionPublicKeyAction | KeyringControllerDecryptMessageAction | KeyringControllerGetKeyringForAccountAction | KeyringControllerGetKeyringsByTypeAction | KeyringControllerPersistAllKeyringsAction | KeyringControllerImportAccountWithStrategyAction | KeyringControllerRemoveAccountAction | KeyringControllerSetLockedAction | KeyringControllerSignMessageAction | KeyringControllerSignEip7702AuthorizationAction | KeyringControllerSignPersonalMessageAction | KeyringControllerSignTypedMessageAction | KeyringControllerSignTransactionAction | KeyringControllerPrepareUserOperationAction | KeyringControllerPatchUserOperationAction | KeyringControllerSignUserOperationAction | KeyringControllerChangePasswordAction | KeyringControllerSubmitEncryptionKeyAction | KeyringControllerExportEncryptionKeyAction | KeyringControllerSubmitPasswordAction | KeyringControllerWithKeyringAction | KeyringControllerWithKeyringUnsafeAction | KeyringControllerWithKeyringV2Action | KeyringControllerWithKeyringV2UnsafeAction | KeyringControllerWithControllerAction | KeyringControllerGetAccountKeyringTypeAction;
+ //# sourceMappingURL=KeyringController-method-action-types.d.ts.map
+\ No newline at end of file
+diff --git a/dist/index.d.ts b/dist/index.d.ts
+--- a/dist/index.d.ts
++++ b/dist/index.d.ts
+@@ -1,5 +1,5 @@
+ export * from './KeyringController.js';
+-export type { KeyringControllerAddNewAccountAction, KeyringControllerCreateNewVaultAndRestoreAction, KeyringControllerCreateNewVaultAndKeychainAction, KeyringControllerAddNewKeyringAction, KeyringControllerIsUnlockedAction, KeyringControllerGetAccountsAction, KeyringControllerGetEncryptionPublicKeyAction, KeyringControllerDecryptMessageAction, KeyringControllerGetKeyringForAccountAction, KeyringControllerGetKeyringsByTypeAction, KeyringControllerPersistAllKeyringsAction, KeyringControllerRemoveAccountAction, KeyringControllerSignMessageAction, KeyringControllerSignEip7702AuthorizationAction, KeyringControllerSignPersonalMessageAction, KeyringControllerSignTransactionAction, KeyringControllerSignTypedMessageAction, KeyringControllerPrepareUserOperationAction, KeyringControllerPatchUserOperationAction, KeyringControllerSignUserOperationAction, KeyringControllerWithControllerAction, KeyringControllerWithKeyringAction, KeyringControllerWithKeyringUnsafeAction, KeyringControllerWithKeyringV2Action, KeyringControllerWithKeyringV2UnsafeAction, KeyringControllerExportSeedPhraseAction, KeyringControllerVerifyPasswordAction, KeyringControllerExportAccountAction, KeyringControllerImportAccountWithStrategyAction, KeyringControllerSetLockedAction, KeyringControllerChangePasswordAction, KeyringControllerSubmitEncryptionKeyAction, KeyringControllerExportEncryptionKeyAction, KeyringControllerSubmitPasswordAction, KeyringControllerGetAccountKeyringTypeAction, } from './KeyringController-method-action-types.js';
++export type { KeyringControllerCreateNewVaultAndImportPrivateKeyAction, KeyringControllerAddNewAccountAction, KeyringControllerCreateNewVaultAndRestoreAction, KeyringControllerCreateNewVaultAndKeychainAction, KeyringControllerAddNewKeyringAction, KeyringControllerIsUnlockedAction, KeyringControllerGetAccountsAction, KeyringControllerGetEncryptionPublicKeyAction, KeyringControllerDecryptMessageAction, KeyringControllerGetKeyringForAccountAction, KeyringControllerGetKeyringsByTypeAction, KeyringControllerPersistAllKeyringsAction, KeyringControllerRemoveAccountAction, KeyringControllerSignMessageAction, KeyringControllerSignEip7702AuthorizationAction, KeyringControllerSignPersonalMessageAction, KeyringControllerSignTransactionAction, KeyringControllerSignTypedMessageAction, KeyringControllerPrepareUserOperationAction, KeyringControllerPatchUserOperationAction, KeyringControllerSignUserOperationAction, KeyringControllerWithControllerAction, KeyringControllerWithKeyringAction, KeyringControllerWithKeyringUnsafeAction, KeyringControllerWithKeyringV2Action, KeyringControllerWithKeyringV2UnsafeAction, KeyringControllerExportSeedPhraseAction, KeyringControllerVerifyPasswordAction, KeyringControllerExportAccountAction, KeyringControllerImportAccountWithStrategyAction, KeyringControllerSetLockedAction, KeyringControllerChangePasswordAction, KeyringControllerSubmitEncryptionKeyAction, KeyringControllerExportEncryptionKeyAction, KeyringControllerSubmitPasswordAction, KeyringControllerGetAccountKeyringTypeAction, } from './KeyringController-method-action-types.js';
+ export type * from './types.js';
+ export * from './errors.js';
+ export { KeyringControllerErrorMessage } from './constants.js';

@@ -175,6 +175,9 @@
     "yarn-binary:hydrate": "corepack hydrate .yarn/yarn-corepack.tgz --activate"
   },
   "resolutions": {
+    "@metamask/keyring-controller@npm:^28.0.0": "patch:@metamask/keyring-controller@npm%3A28.2.0#~/.yarn/patches/metamask-keyring-controller-private-key-onboarding.patch",
+    "@metamask/keyring-controller@npm:^28.1.0": "patch:@metamask/keyring-controller@npm%3A28.2.0#~/.yarn/patches/metamask-keyring-controller-private-key-onboarding.patch",
+    "@metamask/keyring-controller@npm:^28.2.0": "patch:@metamask/keyring-controller@npm%3A28.2.0#~/.yarn/patches/metamask-keyring-controller-private-key-onboarding.patch",
     "@metamask/config-registry-controller": "^5.0.0",
     "@metamask/eth-sig-util": "^9.0.0",
     "@metamask/network-controller": "^37.1.1",

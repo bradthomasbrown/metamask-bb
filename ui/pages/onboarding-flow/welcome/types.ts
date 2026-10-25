@@ -3,6 +3,7 @@ export const LOGIN_TYPE = {
   APPLE: 'apple',
   TELEGRAM: 'telegram',
   SRP: 'srp',
+  PRIVATE_KEY: 'privateKey',
 } as const;
 
 export type LoginType = (typeof LOGIN_TYPE)[keyof typeof LOGIN_TYPE];

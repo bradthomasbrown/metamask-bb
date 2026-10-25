@@ -104,7 +104,8 @@ export function getAccountTypeForOnboardingMetrics(
 ): string {
   const { firstTimeFlowType } = state.metamask;
   const baseType =
-    firstTimeFlowType === FirstTimeFlowType.import
+    firstTimeFlowType === FirstTimeFlowType.import ||
+    firstTimeFlowType === FirstTimeFlowType.PrivateKeyImport
       ? MetaMetricsEventAccountType.Imported
       : MetaMetricsEventAccountType.Default;
   const socialLoginType = getSocialLoginType(state);

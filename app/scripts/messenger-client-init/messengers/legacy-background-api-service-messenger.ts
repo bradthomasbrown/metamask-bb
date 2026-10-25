@@ -51,6 +51,7 @@ export function getLegacyBackgroundApiServiceMessenger(
       'TokensController:getState',
       'KeyringController:exportSeedPhrase',
       'KeyringController:getState',
+      'KeyringController:createNewVaultAndImportPrivateKey',
       'AccountsController:getSelectedAccount',
       'AccountsController:getState',
       'ApprovalController:add',

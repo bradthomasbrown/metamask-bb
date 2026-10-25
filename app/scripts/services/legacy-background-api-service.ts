@@ -54,6 +54,7 @@ import {
 import {
   AccountImportStrategy,
   KeyringControllerAddNewKeyringAction,
+  KeyringControllerCreateNewVaultAndImportPrivateKeyAction,
   KeyringControllerChangePasswordAction,
   KeyringControllerExportAccountAction,
   KeyringControllerExportEncryptionKeyAction,
@@ -499,6 +500,7 @@ const MESSENGER_EXPOSED_METHODS = [
   'checkIsSeedlessPasswordOutdated',
   'connectHardware',
   'createNewVaultAndGetSeedPhrase',
+  'createNewVaultAndImportPrivateKey',
   'createNewVaultAndKeychain',
   'createNewVaultAndRestore',
   'createSeedPhraseBackup',
@@ -637,6 +639,7 @@ type AllowedActions =
   | DelegationControllerSignDelegationAction
   | GasFeeControllerDisableNonRPCGasFeeApisAction
   | GasFeeControllerEnableNonRPCGasFeeApisAction
+  | KeyringControllerCreateNewVaultAndImportPrivateKeyAction
   | KeyringControllerAddNewKeyringAction
   | KeyringControllerChangePasswordAction
   | KeyringControllerExportAccountAction
@@ -1916,8 +1919,8 @@ export class LegacyBackgroundApiService {
    * @param address - The account address, not CAIP-10 formatted.
    */
   async removeAccount(address: string): Promise<string> {
-    this.onAccountRemoved(address);
     await this.#messenger.call('KeyringController:removeAccount', address);
+    this.onAccountRemoved(address);
 
     return address;
   }
@@ -3969,11 +3972,47 @@ export class LegacyBackgroundApiService {
   }
 
   /**
-   * Creates a new Vault and create a new keychain.
+   * Initializes a fresh local vault containing only an existing EVM private key.
    *
    * @param password - The password used to encrypt the vault.
-   * @returns created keyring object
+   * @param privateKey - The existing 32-byte key, encoded as hexadecimal.
    */
+  async createNewVaultAndImportPrivateKey(
+    password: string,
+    privateKey: string,
+  ): Promise<void> {
+    const releaseLock = await this.#createVaultMutex.acquire();
+    try {
+      // This is initial setup, never a wallet replacement or reset operation.
+      const { vault } = this.#messenger.call('KeyringController:getState');
+      const { completedOnboarding } = this.#messenger.call(
+        'OnboardingController:getState',
+      );
+      if (
+        vault ||
+        completedOnboarding ||
+        this.#messenger.call('OnboardingController:getIsSocialLoginFlow')
+      ) {
+        throw new Error(
+          'Private-key setup requires an uninitialized local wallet',
+        );
+      }
+      await this.#messenger.call(
+        'KeyringController:createNewVaultAndImportPrivateKey',
+        password,
+        privateKey,
+      );
+      await this.#messenger.call('AccountsController:updateAccounts');
+      this.#messenger.call('AccountTreeController:reinit');
+      this.#messenger.call(
+        'AppStateController:setIsWalletResetInProgress',
+        false,
+      );
+    } finally {
+      releaseLock();
+    }
+  }
+
   async createNewVaultAndKeychain(
     password: string,
   ): Promise<{ type: string; accounts: string[]; metadata: { id: string } }> {

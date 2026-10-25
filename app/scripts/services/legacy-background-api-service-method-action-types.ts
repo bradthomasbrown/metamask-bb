@@ -904,11 +904,17 @@ export type LegacyBackgroundApiServiceSyncSeedPhrasesAction = {
 };
 
 /**
- * Creates a new Vault and create a new keychain.
+ * Initializes a fresh local vault containing only an existing EVM private key.
  *
  * @param password - The password used to encrypt the vault.
- * @returns created keyring object
+ * @param privateKey - The existing 32-byte key, encoded as hexadecimal.
  */
+export type LegacyBackgroundApiServiceCreateNewVaultAndImportPrivateKeyAction =
+  {
+    type: `LegacyBackgroundApiService:createNewVaultAndImportPrivateKey`;
+    handler: LegacyBackgroundApiService['createNewVaultAndImportPrivateKey'];
+  };
+
 export type LegacyBackgroundApiServiceCreateNewVaultAndKeychainAction = {
   type: `LegacyBackgroundApiService:createNewVaultAndKeychain`;
   handler: LegacyBackgroundApiService['createNewVaultAndKeychain'];
@@ -1217,6 +1223,7 @@ export type LegacyBackgroundApiServiceMethodActions =
   | LegacyBackgroundApiServiceThrowTestErrorAction
   | LegacyBackgroundApiServiceCreateSeedPhraseBackupAction
   | LegacyBackgroundApiServiceSyncSeedPhrasesAction
+  | LegacyBackgroundApiServiceCreateNewVaultAndImportPrivateKeyAction
   | LegacyBackgroundApiServiceCreateNewVaultAndKeychainAction
   | LegacyBackgroundApiServiceCreateNewVaultAndGetSeedPhraseAction
   | LegacyBackgroundApiServiceUnlockAndGetSeedPhraseAction

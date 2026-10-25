@@ -3128,6 +3128,10 @@ export default class MetamaskController extends EventEmitter {
         this.controllerMessenger,
         'LegacyBackgroundApiService:setLocked',
       ),
+      createNewVaultAndImportPrivateKey: this.controllerMessenger.call.bind(
+        this.controllerMessenger,
+        'LegacyBackgroundApiService:createNewVaultAndImportPrivateKey',
+      ),
       createNewVaultAndKeychain: this.controllerMessenger.call.bind(
         this.controllerMessenger,
         'LegacyBackgroundApiService:createNewVaultAndKeychain',

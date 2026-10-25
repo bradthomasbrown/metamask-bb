@@ -20,6 +20,7 @@ import {
   ONBOARDING_COMPLETION_ROUTE,
   ONBOARDING_CREATE_PASSWORD_ROUTE,
   ONBOARDING_IMPORT_WITH_SRP_ROUTE,
+  ONBOARDING_IMPORT_PRIVATE_KEY_ROUTE,
   ONBOARDING_ACCOUNT_EXIST,
   ONBOARDING_ACCOUNT_NOT_FOUND,
   ONBOARDING_UNLOCK_ROUTE,
@@ -151,7 +152,8 @@ export default function OnboardingWelcome() {
     ) {
       if (
         firstTimeFlowType === FirstTimeFlowType.import ||
-        firstTimeFlowType === FirstTimeFlowType.restore
+        firstTimeFlowType === FirstTimeFlowType.restore ||
+        firstTimeFlowType === FirstTimeFlowType.PrivateKeyImport
       ) {
         navigate(
           consentDecisionMade
@@ -530,6 +532,14 @@ export default function OnboardingWelcome() {
           dispatch(setParticipateInMetaMetrics(null));
         }
 
+        if (loginType === LOGIN_TYPE.PRIVATE_KEY) {
+          await dispatch(
+            setFirstTimeFlowType(FirstTimeFlowType.PrivateKeyImport),
+          );
+          navigate(ONBOARDING_IMPORT_PRIVATE_KEY_ROUTE);
+          return;
+        }
+
         if (loginType === LOGIN_TYPE.SRP) {
           if (loginOption === LOGIN_OPTION.NEW) {
             await onCreateClick();
@@ -567,6 +577,7 @@ export default function OnboardingWelcome() {
       isSeedlessOnboardingFeatureEnabled,
       dispatch,
       onCreateClick,
+      navigate,
       onImportClick,
       onSocialLoginCreateClick,
       isFireFox,

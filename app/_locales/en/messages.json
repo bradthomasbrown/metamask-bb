@@ -7196,6 +7196,7 @@
   "onboardingMetametricsTitle": {
     "message": "Help improve MetaMask"
   },
+  "onboardingPrivateKeyImport": { "message": "Use an existing private key" },
   "onboardingSignInWith": {
     "message": "Sign in with $1",
     "description": "$1 is the type of login used Google, Apple, etc"
@@ -9092,9 +9093,30 @@
     "message": "Private key",
     "description": "select this type of file to use to import an account"
   },
+  "privateKeyBackupWarning": {
+    "message": "Keep a separate, secure backup of this private key. Your password only unlocks this installation. If you lose access, you need the private key to restore this account."
+  },
   "privateKeyHidden": {
     "message": "The private key is hidden",
     "description": "Explains that the private key input is hidden"
+  },
+  "privateKeyInvalid": {
+    "message": "Enter a valid 32-byte Ethereum private key in hexadecimal format."
+  },
+  "privateKeyOnlyRecovery": {
+    "message": "This installation uses private keys. Keep secure backups of each key; there is no Secret Recovery Phrase."
+  },
+  "privateKeyPasswordDetails": {
+    "message": "This password encrypts your private key on this device. It does not replace your private-key backup."
+  },
+  "privateKeyPasswordWarning": {
+    "message": "I understand that MetaMask cannot recover my password or private key. I have a secure backup of my private key."
+  },
+  "privateKeySetupDetails": {
+    "message": "Use your existing Ethereum-compatible private key. No Secret Recovery Phrase or additional account will be generated."
+  },
+  "privateKeySetupError": {
+    "message": "Unable to finish private-key setup. Try again."
   },
   "privateKeyShow": {
     "message": "Show/Hide the private key input",

@@ -1,0 +1,6 @@
+metamask-bb is an unofficial experimental fork of the MetaMask Browser Extension.
+It contains the MetaMask Browser Extension, copyright ConsenSys Software Inc.
+2022. The Program and this Resulting Program are subject to the Notice
+requirement and Non-Commercial Use restriction in the accompanying LICENSE.
+All recipients and derivative distributions must retain these requirements.
+metamask-bb is not affiliated with or endorsed by ConsenSys or MetaMask.

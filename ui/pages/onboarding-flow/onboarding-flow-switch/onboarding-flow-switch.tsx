@@ -51,7 +51,12 @@ export default function OnboardingFlowSwitch() {
     return <Navigate to={DEFAULT_ROUTE} replace />;
   }
 
-  if (seedPhraseBackedUp !== null || (isUnlocked && isSocialLoginFlow)) {
+  if (
+    seedPhraseBackedUp !== null ||
+    (isUnlocked &&
+      (isSocialLoginFlow ||
+        firstTimeFlowType === FirstTimeFlowType.PrivateKeyImport))
+  ) {
     return (
       <Navigate
         to={

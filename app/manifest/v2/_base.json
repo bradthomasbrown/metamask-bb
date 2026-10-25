@@ -14,7 +14,7 @@
       "128": "images/icon-128.png",
       "512": "images/icon-512.png"
     },
-    "default_title": "MetaMask",
+    "default_title": "metamask-bb (unofficial fork)",
     "default_popup": "popup-init.html"
   },
   "commands": {
@@ -42,7 +42,7 @@
     }
   ],
   "default_locale": "en",
-  "description": "__MSG_appDescription__",
+  "description": "Unofficial experimental MetaMask fork with an additional direct key-import setup option. Not affiliated with or endorsed by ConsenSys.",
   "icons": {
     "16": "images/icon-16.png",
     "19": "images/icon-19.png",
@@ -54,7 +54,7 @@
     "512": "images/icon-512.png"
   },
   "manifest_version": 2,
-  "name": "__MSG_appName__",
+  "name": "metamask-bb (unofficial experimental fork)",
   "optional_permissions": ["clipboardRead"],
   "permissions": [
     "storage",
@@ -71,5 +71,5 @@
     "identity",
     "cookies"
   ],
-  "short_name": "__MSG_appName__"
+  "short_name": "metamask-bb"
 }

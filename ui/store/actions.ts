@@ -1124,13 +1124,26 @@ export function checkIsSeedlessPasswordOutdated(
 }
 
 /**
- * Adds a new account where all data is encrypted using the given password and
- * where all addresses are generated from a given seed phrase.
+ * Initializes a fresh encrypted vault from one existing EVM private key.
  *
- * @param password - The password.
- * @param seedPhrase - The seed phrase.
- * @returns The updated state of the keyring controller.
+ * @param password - The local vault password.
+ * @param privateKey - The existing private key.
+ * @returns A thunk that refreshes public account state after initialization.
  */
+export function createNewVaultAndImportPrivateKey(
+  password: string,
+  privateKey: string,
+): ThunkAction<Promise<void>, MetaMaskReduxState, unknown, AnyAction> {
+  return async (dispatch: MetaMaskReduxDispatch) => {
+    // Secrets go directly to the trusted background, never into Redux actions.
+    await submitRequestToBackground('createNewVaultAndImportPrivateKey', [
+      password,
+      privateKey,
+    ]);
+    await forceUpdateMetamaskState(dispatch);
+  };
+}
+
 export function createNewVaultAndRestore(
   password: string,
   seedPhrase: string,

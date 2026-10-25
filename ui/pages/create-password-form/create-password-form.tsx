@@ -29,6 +29,7 @@ import { useBoolean } from '../../hooks/useBoolean';
 
 type CreatePasswordFormProps = {
   isSocialLoginFlow: boolean;
+  isPrivateKeyImport?: boolean;
   onSubmit: (password: string, termsChecked: boolean) => Promise<void>;
   onBack: (event: React.MouseEvent<HTMLButtonElement>) => void;
   error?: boolean;
@@ -37,6 +38,7 @@ type CreatePasswordFormProps = {
 
 const CreatePasswordForm = ({
   isSocialLoginFlow,
+  isPrivateKeyImport = false,
   onSubmit,
   onBack,
   error = false,
@@ -106,7 +108,11 @@ const CreatePasswordForm = ({
 
   const checkboxLabel = isSocialLoginFlow
     ? t('createPasswordMarketing')
-    : t('passwordTermsWarning');
+    : t(
+        isPrivateKeyImport
+          ? 'privateKeyPasswordWarning'
+          : 'passwordTermsWarning',
+      );
 
   return (
     <Box
@@ -154,7 +160,11 @@ const CreatePasswordForm = ({
                 variant={TextVariant.BodyMd}
                 color={TextColor.TextAlternative}
               >
-                {t('createPasswordDetails')}
+                {t(
+                  isPrivateKeyImport
+                    ? 'privateKeyPasswordDetails'
+                    : 'createPasswordDetails',
+                )}
               </Text>
             )}
           </Box>
@@ -199,7 +209,7 @@ const CreatePasswordForm = ({
                 >
                   <span>
                     {checkboxLabel}
-                    {!isSocialLoginFlow && (
+                    {!isSocialLoginFlow && !isPrivateKeyImport && (
                       <>
                         <br />
                         {createPasswordLink}

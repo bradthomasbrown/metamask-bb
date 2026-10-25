@@ -494,7 +494,7 @@ describe('LegacyBackgroundApiService', () => {
           getTokenStandardAndDetails,
         );
 
-        // Mainnet DAI address — must not be treated as DAI on Polygon.
+        // Mainnet DAI address â€” must not be treated as DAI on Polygon.
         const result = await rootMessenger.call(
           'LegacyBackgroundApiService:getTokenStandardAndDetails',
           '0x6B175474E89094C44Da98b954EedeAC495271d0F',
@@ -6263,6 +6263,69 @@ describe('LegacyBackgroundApiService', () => {
     });
   });
 
+  describe('createNewVaultAndImportPrivateKey', () => {
+    it('initializes only the private-key vault and rebuilds account state', async () => {
+      await withService(async ({ rootMessenger, service }) => {
+        const createVault = jest.fn();
+        rootMessenger.registerActionHandler(
+          'KeyringController:getState',
+          jest.fn().mockReturnValue({}),
+        );
+        rootMessenger.registerActionHandler(
+          'OnboardingController:getState',
+          jest.fn().mockReturnValue({ completedOnboarding: false }),
+        );
+        rootMessenger.registerActionHandler(
+          'OnboardingController:getIsSocialLoginFlow',
+          jest.fn().mockReturnValue(false),
+        );
+        rootMessenger.registerActionHandler(
+          'KeyringController:createNewVaultAndImportPrivateKey',
+          createVault,
+        );
+        rootMessenger.registerActionHandler(
+          'AccountsController:updateAccounts',
+          jest.fn(),
+        );
+        rootMessenger.registerActionHandler(
+          'AccountTreeController:reinit',
+          jest.fn(),
+        );
+        rootMessenger.registerActionHandler(
+          'AppStateController:setIsWalletResetInProgress',
+          jest.fn(),
+        );
+        await service.createNewVaultAndImportPrivateKey(
+          'password',
+          '1'.padStart(64, '0'),
+        );
+        expect(createVault).toHaveBeenCalledWith(
+          'password',
+          '1'.padStart(64, '0'),
+        );
+      });
+    });
+
+    it('refuses to overwrite a wallet before any mutation', async () => {
+      await withService(async ({ rootMessenger, service }) => {
+        rootMessenger.registerActionHandler(
+          'KeyringController:getState',
+          jest.fn().mockReturnValue({ vault: 'existing' }),
+        );
+        rootMessenger.registerActionHandler(
+          'OnboardingController:getState',
+          jest.fn().mockReturnValue({ completedOnboarding: true }),
+        );
+        await expect(
+          service.createNewVaultAndImportPrivateKey(
+            'password',
+            '1'.padStart(64, '0'),
+          ),
+        ).rejects.toThrow('uninitialized');
+      });
+    });
+  });
+
   describe('createNewVaultAndKeychain', () => {
     it('clears wallet state when a wallet reset is in progress', async () => {
       await withService(async ({ rootMessenger, service }) => {
@@ -8487,6 +8550,7 @@ function getMessenger(
       'TokensController:getState',
       'KeyringController:exportSeedPhrase',
       'KeyringController:getState',
+      'KeyringController:createNewVaultAndImportPrivateKey',
       'AccountsController:getSelectedAccount',
       'AccountsController:getState',
       'ApprovalController:add',

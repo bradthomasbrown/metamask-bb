@@ -185,6 +185,17 @@ export default function LoginOptions({
       >
         {t(isExisting ? 'onboardingSrpImport' : 'onboardingSrpCreate')}
       </Button>
+      {isExisting && (
+        <Button
+          data-testid="onboarding-import-with-private-key-button"
+          variant={ButtonVariant.Secondary}
+          className="w-full mt-4"
+          size={ButtonSize.Lg}
+          onClick={() => handleLogin(LOGIN_TYPE.PRIVATE_KEY)}
+        >
+          {t('onboardingPrivateKeyImport')}
+        </Button>
+      )}
       <Text
         variant={TextVariant.BodySm}
         fontWeight={FontWeight.Medium}

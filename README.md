@@ -1,3 +1,47 @@
+# metamask-bb
+
+**Unofficial experimental MetaMask fork. Not affiliated with or endorsed by
+ConsenSys or MetaMask.**
+
+This fork adds **Use an existing private key** to initial setup. This is an
+additional option: the usual wallet creation and recovery-phrase import flows
+remain available. Choosing direct key setup creates an encrypted local vault
+with the supplied EVM account, without generating a recovery phrase or an extra
+account.
+
+For the Windows preview, extract the preview archive and double-click
+`TRY-WALLET.cmd`. It opens an isolated Edge profile and step-by-step instructions.
+No Node, Yarn, build, or Infura account is required to try account import and
+unlocking. The placeholder RPC configuration must be replaced with a working
+endpoint before live network operations.
+
+The preview is a development build. The selected 268 tests, type check, and
+changed-file lint checks passed. Production compilation with policy generation
+completed with seven LavaMoat plugin runtime-ordering warnings. Live browser
+testing and independent security review remain outstanding. Use disposable test
+keys for evaluation.
+
+## License and attribution
+
+This project contains MetaMask Browser Extension code, copyright ConsenSys
+Software Inc. 2022. The upstream [LICENSE](LICENSE) and [NOTICE](NOTICE.txt) apply
+to this fork and its distribution. The same Notice requirement and Non-Commercial
+Use restriction must be passed on to recipients and derivative distributions.
+The license's definition includes hobby use and a category limited to no more
+than 10,000 monthly active users across all versions and platforms globally.
+This is not an MIT-licensed or unrestricted redistribution of MetaMask.
+
+## Building from source
+
+Use the Node and Yarn versions in `.nvmrc` and `package.json`. Run `yarn install`,
+copy `.metamaskrc.dist` to `.metamaskrc`, and run `yarn build:dev`. Load
+`dist/chrome` through your browser's **Load unpacked** option. The keyring change
+is pinned through a Yarn patch in `.yarn/patches` and recorded in `yarn.lock`.
+
+---
+
+The original upstream README follows.
+
 # MetaMask Browser Extension
 
 You can find the latest version of MetaMask on [our official website](https://metamask.io/). For help using MetaMask, visit our [User Support Site](https://support.metamask.io/).

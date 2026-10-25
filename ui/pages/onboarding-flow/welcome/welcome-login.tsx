@@ -156,6 +156,19 @@ export default function WelcomeLogin({
                 ? t('onboardingImportWallet')
                 : t('onboardingSrpImport')}
             </Button>
+            {!isSeedlessOnboardingFeatureEnabled && (
+              <Button
+                data-testid="onboarding-import-with-private-key-button"
+                variant={ButtonVariant.Secondary}
+                size={ButtonSize.Lg}
+                className="w-full"
+                onClick={() =>
+                  onLogin(LOGIN_TYPE.PRIVATE_KEY, LOGIN_OPTION.EXISTING)
+                }
+              >
+                {t('onboardingPrivateKeyImport')}
+              </Button>
+            )}
           </Box>
         )}
       </Box>

@@ -9,7 +9,7 @@
       "128": "images/icon-128.png",
       "512": "images/icon-512.png"
     },
-    "default_title": "MetaMask",
+    "default_title": "metamask-bb (unofficial fork)",
     "default_popup": "popup-init.html"
   },
   "author": "https://metamask.io",
@@ -63,7 +63,7 @@
     }
   ],
   "default_locale": "en",
-  "description": "__MSG_appDescription__",
+  "description": "Unofficial experimental MetaMask fork with an additional direct key-import setup option. Not affiliated with or endorsed by ConsenSys.",
   "host_permissions": [
     "http://localhost:8545/",
     "file://*/*",
@@ -83,7 +83,7 @@
     "512": "images/icon-512.png"
   },
   "manifest_version": 3,
-  "name": "__MSG_appName__",
+  "name": "metamask-bb (unofficial experimental fork)",
   "optional_permissions": ["clipboardRead"],
   "permissions": [
     "activeTab",
@@ -101,7 +101,7 @@
   "sandbox": {
     "pages": ["snaps/index.html"]
   },
-  "short_name": "__MSG_appName__",
+  "short_name": "metamask-bb",
   "web_accessible_resources": [
     {
       "resources": ["cashtag-widget.html"],

@@ -30,6 +30,7 @@ import {
   ONBOARDING_PRIVACY_SETTINGS_ROUTE,
   ONBOARDING_COMPLETION_ROUTE,
   ONBOARDING_IMPORT_WITH_SRP_ROUTE,
+  ONBOARDING_IMPORT_PRIVATE_KEY_ROUTE,
   ONBOARDING_METAMETRICS,
   ONBOARDING_ACCOUNT_EXIST,
   ONBOARDING_ACCOUNT_NOT_FOUND,
@@ -93,6 +94,7 @@ import PrivacySettings from './privacy-settings/privacy-settings';
 import CreationSuccessful from './creation-successful/creation-successful';
 import OnboardingWelcome from './welcome/welcome';
 import ImportSRP from './import-srp/import-srp';
+import ImportPrivateKey from './import-private-key/import-private-key';
 import MetaMetricsComponent from './metametrics/metametrics';
 import OnboardingAppHeader from './onboarding-app-header/onboarding-app-header';
 import { useOnboardingSearchParams } from './hooks/useOnboardingSearchParams';
@@ -528,6 +530,10 @@ const OnboardingFlowContent = () => {
                     secretRecoveryPhrase={secretRecoveryPhrase}
                   />
                 }
+              />
+              <Route
+                path={toRelativePath(ONBOARDING_IMPORT_PRIVATE_KEY_ROUTE)}
+                element={<ImportPrivateKey />}
               />
               <Route
                 path={toRelativePath(ONBOARDING_IMPORT_WITH_SRP_ROUTE)}
