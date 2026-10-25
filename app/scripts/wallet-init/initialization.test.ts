@@ -1,4 +1,5 @@
 import { Wallet } from '@metamask/wallet';
+import { RpcEndpointType } from '@metamask/network-controller';
 import type { Encryptor } from '@metamask/keyring-controller';
 import type { ConnectivityAdapter } from '@metamask/connectivity-controller';
 import { WeakRefObjectMap } from '../lib/WeakRefObjectMap';
@@ -131,6 +132,36 @@ describe('initializeWallet', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockWalletInit.mockResolvedValue([]);
+  });
+
+  it('initializes public RPCs for a preview build without changing wallet state', () => {
+    const state = { KeyringController: { vault: 'encrypted-vault-blob' } };
+    initializeWallet({
+      connectivityAdapter,
+      getFlatState,
+      getPermittedAccounts,
+      getTransactionMetricsRequest,
+      infuraProjectId: '00000000000',
+      messenger: createMockMessenger(),
+      platform,
+      state,
+    });
+    const options = MockWallet.mock.calls[0][0];
+    expect(options.state?.KeyringController).toBe(state.KeyringController);
+    expect(options.state?.NetworkController).toMatchObject({
+      selectedNetworkClientId: 'mainnet',
+      networkConfigurationsByChainId: {
+        '0x1': {
+          rpcEndpoints: [
+            {
+              networkClientId: 'mainnet',
+              type: RpcEndpointType.Custom,
+              url: 'https://ethereum-rpc.publicnode.com',
+            },
+          ],
+        },
+      },
+    });
   });
 
   it('constructs a Wallet, wiring each builder output to its instanceOptions slot', () => {

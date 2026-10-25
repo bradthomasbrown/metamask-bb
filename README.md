@@ -11,9 +11,24 @@ account.
 
 For the Windows preview, extract the preview archive and double-click
 `TRY-WALLET.cmd`. It opens an isolated Edge profile and step-by-step instructions.
-No Node, Yarn, build, or Infura account is required to try account import and
-unlocking. The placeholder RPC configuration must be replaced with a working
-endpoint before live network operations.
+No Node, Yarn, build, or Infura account is required. Preview 3 supplies public
+RPC defaults and automatically upgrades the built-in endpoints in earlier preview
+profiles. Wallet data, network selections, and user-added RPC endpoints are retained.
+
+### Public RPC providers
+
+When the build uses the all-zero Infura placeholder, Ethereum, Sepolia, Base,
+Arbitrum, BNB Chain, Optimism, and Polygon use [PublicNode](https://www.publicnode.com/).
+Linea and Linea Sepolia use [Linea's public RPCs](https://docs.linea.build/network/build/connect),
+and Monad uses [its public RPC](https://github.com/monad-developers).
+These shared services can rate-limit requests or experience outages. RPC providers
+receive your IP address and RPC requests, including queried public addresses and
+submitted transactions. You can review or change the endpoint in network settings.
+A real `INFURA_PROJECT_ID` in a source build retains the upstream Infura defaults.
+
+Before packaging a public-RPC preview, run `yarn tsx development/check-public-rpc.ts`.
+It checks the emitted bundles and queries every configured replacement endpoint
+for its chain ID and latest block. It does not submit transactions.
 
 The preview is a development build. The selected 268 tests, type check, and
 changed-file lint checks passed. Production compilation with policy generation
@@ -23,10 +38,10 @@ locking/unlocking all passed with a public disposable key. The 20 build-config
 tests passed, including dependency-patch cache invalidation. Independent security
 review remains outstanding. Use disposable test keys for evaluation.
 
-If you tried preview 1, replace its extracted files with preview 2 and click
+If you tried an earlier preview, replace its extracted files with preview 3 and click
 **Reload** for `metamask-bb` on your browser's Extensions page. Refreshing the
 wallet tab alone does not reload its background worker. No profile reset is
-needed for the failed initial setup.
+needed. Select the `extension` subfolder when using **Load unpacked**.
 
 ## License and attribution
 

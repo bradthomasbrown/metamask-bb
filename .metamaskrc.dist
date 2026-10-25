@@ -1,7 +1,8 @@
 ; Extra environment variables
 ; Defaults are set in builds.yml
 
-; This variable is required
+; Required by the upstream controller. The all-zero placeholder makes metamask-bb
+; use public RPC defaults. A real project ID retains the upstream Infura defaults.
 INFURA_PROJECT_ID=00000000000
 
 ; Set this to `true` to enable Seedless onboarding (Social login flow)

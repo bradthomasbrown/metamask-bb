@@ -1,6 +1,9 @@
 import type { AuthenticationControllerState } from '@metamask/profile-sync-controller/auth';
 import { Wallet } from '@metamask/wallet';
-import { RpcEndpointType } from '@metamask/network-controller';
+import {
+  RpcEndpointType,
+  type NetworkState,
+} from '@metamask/network-controller';
 import { isObject } from '@metamask/utils';
 import { isInE2eTest } from '../../../shared/lib/environment';
 import {
@@ -17,6 +20,7 @@ import { getKeyringControllerInstanceOptions } from './instance-options/keyring-
 import { getRemoteFeatureFlagControllerInstanceOptions } from './instance-options/remote-feature-flag-controller';
 import { getStorageServiceInstanceOptions } from './instance-options/storage-service';
 import { getNetworkControllerInstanceOptions } from './instance-options/network-controller';
+import { getPublicRpcNetworkState } from './public-rpc';
 import {
   getTransactionControllerInstanceOptions,
   setupTransactionControllerListeners,
@@ -105,7 +109,10 @@ export function initializeWallet(request: InitializeWalletRequest) {
       shieldApiService: getShieldApiServiceInstanceOptions(),
       shieldController: getShieldControllerInstanceOptions(),
       remoteFeatureFlagController:
-        getRemoteFeatureFlagControllerInstanceOptions({ messenger, state }),
+        getRemoteFeatureFlagControllerInstanceOptions({
+          messenger,
+          state,
+        }),
       selectedNetworkController: {
         domainProxyMap: new WeakRefObjectMap(),
       },
@@ -119,7 +126,16 @@ export function initializeWallet(request: InitializeWalletRequest) {
       }),
     },
     messenger,
-    state,
+    state:
+      isInE2eTest() || !/^0+$/u.test(infuraProjectId)
+        ? state
+        : {
+            ...state,
+            NetworkController: getPublicRpcNetworkState(
+              state.NetworkController as Partial<NetworkState>,
+              infuraProjectId,
+            ),
+          },
   });
 
   // Fixture-less test builds (like `yarn build:test:dev`) have no persisted
