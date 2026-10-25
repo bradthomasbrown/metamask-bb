@@ -17,9 +17,16 @@ endpoint before live network operations.
 
 The preview is a development build. The selected 268 tests, type check, and
 changed-file lint checks passed. Production compilation with policy generation
-completed with seven LavaMoat plugin runtime-ordering warnings. Live browser
-testing and independent security review remain outstanding. Use disposable test
-keys for evaluation.
+completed with seven LavaMoat plugin runtime-ordering warnings. Preview 2 was
+also checked in a clean browser: direct-key setup, the single-account list, and
+locking/unlocking all passed with a public disposable key. The 20 build-config
+tests passed, including dependency-patch cache invalidation. Independent security
+review remains outstanding. Use disposable test keys for evaluation.
+
+If you tried preview 1, replace its extracted files with preview 2 and click
+**Reload** for `metamask-bb` on your browser's Extensions page. Refreshing the
+wallet tab alone does not reload its background worker. No profile reset is
+needed for the failed initial setup.
 
 ## License and attribution
 

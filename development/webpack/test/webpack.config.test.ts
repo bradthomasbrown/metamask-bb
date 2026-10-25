@@ -236,6 +236,19 @@ ${Object.entries(env)
     assert.strictEqual(options.watch, false);
     const cache = config.cache as FileCacheOptions;
     const configBuildDependencies = cache.buildDependencies?.config ?? [];
+    const dependencyPaths = configBuildDependencies.map(buildDependencyPath);
+    assert.ok(
+      dependencyPaths.some((path) => path.endsWith('yarn.lock')),
+      'dependency changes must invalidate cached managed packages',
+    );
+    assert.ok(
+      dependencyPaths.some((path) =>
+        path.endsWith(
+          'metamask-keyring-controller-private-key-onboarding.patch',
+        ),
+      ),
+      'the keyring patch must invalidate a previously cached dependency body',
+    );
     assert.ok(
       configBuildDependencies
         .map(buildDependencyPath)

@@ -118,6 +118,14 @@ const cache = args.cache
             existsSync,
           ),
           join(root, 'builds.yml'),
+          // Webpack treats node_modules as managed and can otherwise reuse an
+          // older package body after a Yarn patch changes without a version bump.
+          join(root, 'package.json'),
+          join(root, 'yarn.lock'),
+          join(
+            root,
+            '.yarn/patches/metamask-keyring-controller-private-key-onboarding.patch',
+          ),
           browsersListPath,
         ],
       },
